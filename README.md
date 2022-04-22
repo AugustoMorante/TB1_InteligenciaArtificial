@@ -7,3 +7,6 @@ Integrantes:
 -   Klaus Mollán
 -   Sergio Quiroz Serrano
 -   Junior Jamil
+
+Informe:
+https://docs.google.com/document/d/1JryAsCmFXXFrcw1d7F1c5ndwKt0vy68t/edit?usp=sharing&ouid=112065234502936681466&rtpof=true&sd=true

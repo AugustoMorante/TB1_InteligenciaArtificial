@@ -152,6 +152,22 @@ while True:
 
   surface.fill((0,0,0))
 
+  for i in range(len(gamePlatforms)):
+    if gamePlatforms[i]['pos'][1] - player["y"] == 21:
+      print("En la plataforma: ", i + 1)
+      print("Escape: ",gamePlatforms[i]['gap'])
+      print("X: ", int(player["x"]))
+      leftDown = False
+
+      if int(player["x"]) > gamePlatforms[i]['gap']:
+        print("izquierda")
+        leftDown = True
+
+      rightDown = False
+      if int(player["x"]) < gamePlatforms[i]['gap']:
+        rightDown = True
+        print("derecha")
+
   if len(gamePlatforms) > 0:
     print(gamePlatforms[-1])
 

@@ -1,3 +1,4 @@
+from email.mime import image
 import pygame, sys, random
 import pygame.locals as GAME_GLOBALS
 import pygame.event as GAME_EVENTS
@@ -6,6 +7,7 @@ import pygame.time as GAME_TIME
 pygame.init()
 clock = pygame.time.Clock()
 
+player_image = pygame.image.load("Game/recursos/dinosaurio.png")
 title_image = pygame.image.load("Game/recursos/titulo.jpg")
 game_over_image = pygame.image.load("Game/recursos/Fin_juego.jpg")
 
@@ -13,6 +15,7 @@ windowWidth = 400
 windowHeight = 600
 
 surface = pygame.display.set_mode((windowWidth, windowHeight)) # ventana principal para nuestro juego
+
 pygame.display.set_caption('¡Déjate caer!')
 
 # Definimos las variables para las pulsaciones de las teclas
@@ -22,8 +25,8 @@ rightDown = False
 gameStarted = False
 gameEnded = False
 gamePlatforms = []
-platformSpeed = 3
-platformDelay = 2000
+platformSpeed = 4
+platformDelay = 1200
 lastPlatform = 0
 platformsDroppedThrough = -1
 dropping = False
@@ -39,11 +42,31 @@ player = {
   "vy" : 5
 }
 
+# Clase para mapear el sprite y la localizacion inicial del dinosaurio
+class Dino(pygame.sprite.Sprite):
+  image = None
+
+  def __init__(self, location) -> None:
+      pygame.sprite.Sprite.__init__(self)
+
+      if Dino.image is None:
+        Dino.image = pygame.image.load("Game/recursos/dinosaurio.png")
+      
+      self.image = pygame.transform.scale(Dino.image, (player["width"], player["height"]))
+      self.rect = self.image.get_rect()
+      self.rect.topleft = location
+    
 # Comenzamos a definir las funciones que formarán parte de nuestro juego
 
 def drawPlayer():
 
-  pygame.draw.rect(surface, (255,128,0), (player["x"], player["y"], player["width"], player["height"]))
+  #pygame.draw.rect(surface, (255,128,0), (player["x"], player["y"], player["width"], player["height"]))
+
+  #Inicializacion de la clase Dino
+  dino = Dino([player["x"], player["y"]])
+  surface.blit(dino.image, dino.rect)
+  pygame.display.update()
+ 
 
 def movePlayer():
 
@@ -104,7 +127,8 @@ def createPlatform():
   gamePlatforms.append({"pos" : [0, platformY], "gap" : gapPosition})
   lastPlatform = GAME_TIME.get_ticks()
 
-  if platformDelay > 800:
+  #Aumentando la velocidad de las plataformas con el tiempo
+  if platformDelay > 580:
     platformDelay -= 50
 
 def movePlatforms():
@@ -132,6 +156,7 @@ def gameOver():
   gameStarted = False
   gameEnded = True
 
+  
 def restartGame():
 
   global gamePlatforms, player, gameBeganAt, platformsDroppedThrough, platformDelay
@@ -141,7 +166,7 @@ def restartGame():
   player["y"] = 0
   gameBeganAt = GAME_TIME.get_ticks()
   platformsDroppedThrough = -1
-  platformDelay = 2000
+  platformDelay = 1200
 
 def quitGame():
   pygame.quit()

@@ -9,7 +9,7 @@ import pygame.time as GAME_TIME
 
 pygame.init()
 clock = pygame.time.Clock()
-soundtrack = pygame.mixer.Sound("Game/recursos/soundtrack.wav")
+soundtrack = pygame.mixer.Sound("Game/recursos/soundtrack3.wav")
 player_image = pygame.image.load("Game/recursos/dinosaurio.png")
 title_image = pygame.image.load("Game/recursos/titulo.jpg")
 game_over_image = pygame.image.load("Game/recursos/Fin_juego.jpg")
@@ -59,20 +59,21 @@ class Dino(pygame.sprite.Sprite):
   height = None
   width = None
   dead = False
+  path = None
+  color = None
   platformsDroppedThrough = -1
 
-  def __init__(self, x, y, s, h, w) -> None:
-      pygame.sprite.Sprite.__init__(self)
-
-      if Dino.image is None:
-        Dino.image = pygame.image.load("Game/recursos/dinosaurio.png")
+  def __init__(self, x, y, s, h, w, path, color) -> None:
+      pygame.sprite.Sprite.__init__(self)     
 
       self.x = x
       self.y = y
       self.speed = s
       self.height = h
-      self.width = w    
-      self.image = pygame.transform.scale(Dino.image, (h, w))
+      self.width = w
+      self.path = path    
+      self.image = pygame.transform.scale(pygame.image.load(path), (h, w))
+      self.color = color
       self.rect = self.image.get_rect()
       self.rect.topleft = [x,y]
     
@@ -81,11 +82,11 @@ fuente = pygame.font.Font(None, 30)
 
 #Poblacion inicial de dinos
 dinos = []
-dino = Dino(player["x"], player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70))
-dino2 = Dino(player["x"]/1.1, player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70))
-dino3 = Dino(player["x"]/1.2, player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70))
-dino4 = Dino(player["x"]/1.3, player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70))
-dino5 = Dino(player["x"]/1.4, player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70))
+dino = Dino(player["x"], player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio.png", (255, 127, 39))
+dino2 = Dino(player["x"]/1.1, player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio2.png", (63, 72, 204))
+dino3 = Dino(player["x"]/1.2, player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio3.png", (0, 168, 243))
+dino4 = Dino(player["x"]/1.3, player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio4.png", (136, 0, 27))
+dino5 = Dino(player["x"]/1.4, player["y"], random.randint(2,9), random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio5.png", (255, 202, 24))
 nuvosDinos = []
 
 dinos.append(dino)
@@ -94,7 +95,11 @@ dinos.append(dino3)
 dinos.append(dino4)
 dinos.append(dino5)
 
-
+#1 -> 255, 127, 39
+#2 -> 63, 72, 204
+#3 -> 0, 168, 243
+#4 -> 136, 0, 27
+#5 -> 255, 202, 24
 # Comenzamos a definir las funciones que formarán parte de nuestro juego
 
 def drawPlayer(dinos):
@@ -102,10 +107,10 @@ def drawPlayer(dinos):
   #Mostrar puntaje y dibujar los dinosaurios
   cont = 0
   for dino in dinos:
-    dinoPuntaje = fuente.render('Dinosaurio puntaje: %d' % dino.platformsDroppedThrough , 0,(200, 60, 80))
+    dinoPuntaje = fuente.render('Dinosaurio puntaje: %d' % dino.platformsDroppedThrough , 0, dino.color)
     cont += 20
     if dino.dead != True:
-      newDino = Dino(dino.x, dino.y, dino.speed, dino.height, dino.width)
+      newDino = Dino(dino.x, dino.y, dino.speed, dino.height, dino.width, dino.path, dino.color)
       surface.blit(newDino.image, newDino.rect)
       surface.blit(dinoPuntaje, (0, cont))
  

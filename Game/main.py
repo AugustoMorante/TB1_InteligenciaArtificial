@@ -9,7 +9,7 @@ import pygame.time as GAME_TIME
 
 pygame.init()
 clock = pygame.time.Clock()
-
+soundtrack = pygame.mixer.Sound("Game/recursos/soundtrack.wav")
 player_image = pygame.image.load("Game/recursos/dinosaurio.png")
 title_image = pygame.image.load("Game/recursos/titulo.jpg")
 game_over_image = pygame.image.load("Game/recursos/Fin_juego.jpg")
@@ -211,6 +211,7 @@ def gameOver():
   
 def restartGame():
 
+  soundtrack.play()
   global gamePlatforms, player, gameBeganAt, platformsDroppedThrough, platformDelay
 
   gamePlatforms = []

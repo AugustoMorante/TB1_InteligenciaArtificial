@@ -1,8 +1,10 @@
 from email.mime import image
+from pickle import TRUE
 import pygame, sys, random
 import pygame.locals as GAME_GLOBALS
 import pygame.event as GAME_EVENTS
 import pygame.time as GAME_TIME
+import random
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -35,24 +37,25 @@ gameBeganAt = 0
 timer = 0
 # Creamos un diccionario con todos los atributos del personaje principal
 player = {
-  "x" : windowWidth / 2,
+  "x" : windowWidth/1.5, #cambiar a 2
   "y" : 0,
   "height" : 20,
   "width" : 20,
-  "vy" : 5
+  "vy" : 5,
+  "direction": "left"
 }
 
 # Clase para mapear el sprite y la localizacion inicial del dinosaurio
 class Dino(pygame.sprite.Sprite):
   image = None
 
-  def __init__(self, location) -> None:
+  def __init__(self, location, size) -> None:
       pygame.sprite.Sprite.__init__(self)
 
       if Dino.image is None:
         Dino.image = pygame.image.load("Game/recursos/dinosaurio.png")
       
-      self.image = pygame.transform.scale(Dino.image, (player["width"], player["height"]))
+      self.image = pygame.transform.scale(Dino.image, size)
       self.rect = self.image.get_rect()
       self.rect.topleft = location
     
@@ -63,8 +66,17 @@ def drawPlayer():
   #pygame.draw.rect(surface, (255,128,0), (player["x"], player["y"], player["width"], player["height"]))
 
   #Inicializacion de la clase Dino
-  dino = Dino([player["x"], player["y"]])
+  dino = Dino([player["x"], player["y"]],[player["height"], player["width"]])
+
+  dino2 = Dino([player["x"]/1.5, player["y"]],[player["height"]/1.5, player["width"]/1.5])
+  dino3 = Dino([player["x"]/2, player["y"]],[player["height"]/2, player["width"]/2])
+  dino4 = Dino([player["x"]/3, player["y"]],[player["height"]/3, player["width"]/3])
+
   surface.blit(dino.image, dino.rect)
+  surface.blit(dino2.image, dino2.rect)
+  surface.blit(dino3.image, dino3.rect)
+  surface.blit(dino4.image, dino4.rect)
+
   pygame.display.update()
  
 
@@ -77,9 +89,12 @@ def movePlayer():
 
   if surface.get_at((int(player["x"]), int(player["y"] + player["height"]))) == (0,0,0,255):
     leftOfPlayerOnPlatform = False
+    player["direction"] = "left"
+    
 
   if surface.get_at((int(player["x"] + player["width"]), int(player["y"] + player["height"]))) == (0,0,0,255):
     rightOfPlayerOnPlatform = False
+    player["direction"] = "right"
 
   if leftOfPlayerOnPlatform is False and rightOfPlayerOnPlatform is False and (player["y"] + player["height"]) + player["vy"] < windowHeight:
     player["y"] += player["vy"]
@@ -176,6 +191,7 @@ def quitGame():
 while True:
 
   surface.fill((0,0,0))
+
 
   for i in range(len(gamePlatforms)):
     if gamePlatforms[i]['pos'][1] - player["y"] == 21:

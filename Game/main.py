@@ -1,10 +1,10 @@
 from email.mime import image
 from pickle import TRUE
+from turtle import speed, width
 import pygame, sys, random
 import pygame.locals as GAME_GLOBALS
 import pygame.event as GAME_EVENTS
 import pygame.time as GAME_TIME
-import random
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -48,55 +48,68 @@ player = {
 # Clase para mapear el sprite y la localizacion inicial del dinosaurio
 class Dino(pygame.sprite.Sprite):
   image = None
+  speed = None
+  height = None
+  width = None
+  location = None
 
-  def __init__(self, location, size) -> None:
+  def __init__(self, location, speed, heigh, width) -> None:
       pygame.sprite.Sprite.__init__(self)
 
       if Dino.image is None:
         Dino.image = pygame.image.load("Game/recursos/dinosaurio.png")
       
-      self.image = pygame.transform.scale(Dino.image, size)
+      self.image = pygame.transform.scale(Dino.image, (heigh, width))
+      self.speed = speed
+      self.height = heigh
+      self.width = width 
       self.rect = self.image.get_rect()
       self.rect.topleft = location
     
 # Comenzamos a definir las funciones que formarán parte de nuestro juego
 
-def drawPlayer():
+random_speed = random.randint(3,9)
+random_height = random.randint(10,50)
+random_width = random.randint(10,50)
+
+dino = Dino([player["x"], player["y"]], random_speed ,random_height, random_width)
+
+def drawPlayer(dinosaurio):
 
   #pygame.draw.rect(surface, (255,128,0), (player["x"], player["y"], player["width"], player["height"]))
 
   #Inicializacion de la clase Dino
-  dino = Dino([player["x"], player["y"]],[player["height"], player["width"]])
+  
+  dinosaurio.location = [player["x"], player["y"]]
+  #dino2 = Dino([player["x"]/1.5, player["y"]],[player["height"]/1.5, player["width"]/1.5])
+  #dino3 = Dino([player["x"]/2, player["y"]],[player["height"]/2, player["width"]/2])
+  #dino4 = Dino([player["x"]/3, player["y"]],[player["height"]/3, player["width"]/3])
 
-  dino2 = Dino([player["x"]/1.5, player["y"]],[player["height"]/1.5, player["width"]/1.5])
-  dino3 = Dino([player["x"]/2, player["y"]],[player["height"]/2, player["width"]/2])
-  dino4 = Dino([player["x"]/3, player["y"]],[player["height"]/3, player["width"]/3])
-
-  surface.blit(dino.image, dino.rect)
-  surface.blit(dino2.image, dino2.rect)
-  surface.blit(dino3.image, dino3.rect)
-  surface.blit(dino4.image, dino4.rect)
+  surface.blit(dinosaurio.image, dinosaurio.rect)
+  #surface.blit(dino2.image, dino2.rect)
+  #surface.blit(dino3.image, dino3.rect)
+  #surface.blit(dino4.image, dino4.rect)
 
   pygame.display.update()
  
 
-def movePlayer():
+def movePlayer(speed, h, w):
 
   global platformsDroppedThrough, dropping
 
   leftOfPlayerOnPlatform = True
   rightOfPlayerOnPlatform = True
 
-  if surface.get_at((int(player["x"]), int(player["y"] + player["height"]))) == (0,0,0,255):
+  if surface.get_at((int(player["x"]), int(player["y"] + h))) == (0,0,0,255):
     leftOfPlayerOnPlatform = False
     player["direction"] = "left"
     
 
-  if surface.get_at((int(player["x"] + player["width"]), int(player["y"] + player["height"]))) == (0,0,0,255):
+  if surface.get_at((int(player["x"] + w), int(player["y"] + h))) == (0,0,0,255):
     rightOfPlayerOnPlatform = False
     player["direction"] = "right"
 
-  if leftOfPlayerOnPlatform is False and rightOfPlayerOnPlatform is False and (player["y"] + player["height"]) + player["vy"] < windowHeight:
+  if leftOfPlayerOnPlatform is False and rightOfPlayerOnPlatform is False and (player["y"] + h) + player["vy"] < windowHeight:
     player["y"] += player["vy"]
 
     if dropping is False:
@@ -110,10 +123,10 @@ def movePlayer():
 
     while foundPlatformTop is False:
 
-      if surface.get_at((int(player["x"]),int( (player["y"] + player["height"]) - yOffset ))) == (0,0,0,255):
+      if surface.get_at((int(player["x"]),int( (player["y"] + h) - yOffset ))) == (0,0,0,255):
         player["y"] -= yOffset
         foundPlatformTop = True
-      elif (player["y"] + player["height"]) - yOffset > 0:
+      elif (player["y"] + h) - yOffset > 0:
         yOffset += 1
       else :
 
@@ -121,16 +134,16 @@ def movePlayer():
         break
 
   if leftDown is True:
-    if player["x"] > 0 and player["x"] - 5 > 0:
-      player["x"] -= 5
-    elif player["x"] > 0 and player["x"] - 5 < 0:
+    if player["x"] > 0 and player["x"] - speed > 0:
+      player["x"] -= speed
+    elif player["x"] > 0 and player["x"] - speed < 0:
       player["x"] = 0
 
   if rightDown is True:
-    if player["x"] + player["width"] < windowWidth and (player["x"] + player["width"]) + 5 < windowWidth:
-      player["x"] += 5
-    elif player["x"] + player["width"] < windowWidth and (player["x"] + player["width"]) + 5 > windowWidth:
-      player["x"] = windowWidth - player["width"]
+    if player["x"] + w < windowWidth and (player["x"] + w) + speed < windowWidth:
+      player["x"] += speed
+    elif player["x"] + w < windowWidth and (player["x"] + w) + speed > windowWidth:
+      player["x"] = windowWidth - w
 
 def createPlatform():
 
@@ -243,8 +256,8 @@ while True:
 
     movePlatforms()
     drawPlatforms()
-    movePlayer()
-    drawPlayer()
+    movePlayer(dino.speed, dino.height, dino.width)
+    drawPlayer(dino)
 
   elif gameEnded is True:
     # Draw game over screen

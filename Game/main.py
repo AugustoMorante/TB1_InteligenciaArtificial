@@ -10,13 +10,15 @@ import pygame.time as GAME_TIME
 import numpy as np
 import random
 
+
+#Inicializar pygame y asignar los recursos base
 pygame.init()
 clock = pygame.time.Clock()
 soundtrack = pygame.mixer.Sound("Game/recursos/soundtrack.wav")
-player_image = pygame.image.load("Game/recursos/dinosaurio.png")
 title_image = pygame.image.load("Game/recursos/titulo.jpg")
 game_over_image = pygame.image.load("Game/recursos/Fin_juego.jpg")
 
+#Tamano del canvas
 windowWidth = 400
 windowHeight = 600
 
@@ -24,9 +26,6 @@ surface = pygame.display.set_mode((windowWidth, windowHeight)) # ventana princip
 
 pygame.display.set_caption('DINO GAME')
 
-# Definimos las variables para las pulsaciones de las teclas
-leftDown = False
-rightDown = False
 # Definimos las variables que afectarán a nustra partida
 gameStarted = False
 gameEnded = False
@@ -34,19 +33,13 @@ gamePlatforms = []
 platformSpeed = 4
 platformDelay = 1200
 lastPlatform = 0
-platformsDroppedThrough = -1
-dropping = False
 # Establecemos los contadores a cero
 gameBeganAt = 0
 timer = 0
-# Creamos un diccionario con todos los atributos del personaje principal
+# Creamos un diccionario par el posicionamiento inicial de dinos
 player = {
-  "x" : windowWidth/1.5, #cambiar a 2
-  "y" : 0,
-  "height" : 20,
-  "width" : 20,
-  "vy" : 5,
-  "direction": "left"
+  "x" : windowWidth/1.5,
+  "y" : 0
 }
 
 #Algoritmo Genético
@@ -82,9 +75,7 @@ class DNA:
 
         return scores[len(scores)-self.n_selection:]
     
-    def reproduction(self, population, selected):
-
-        
+    def reproduction(self, population, selected):        
         point = 0
         father = []
 
@@ -159,12 +150,13 @@ class Dino(pygame.sprite.Sprite):
       self.image = pygame.transform.scale(pygame.image.load(path), (h, w))
       self.color = color
       self.rect = self.image.get_rect()
-      self.rect.topleft = [x,y]
-    
+      self.rect.topleft = [x,y]    
 
 fuente = pygame.font.Font(None, 30)
 
 
+#Aplicacion del algoritmo genetico
+#El valor óptimo de la velocidad que se quiere llegar
 target = [9,0,0]
 model = DNA(target = target,mutation_rate = 0.2,n_individuals = 25,n_selection = 10,n_generations = 10,verbose=True)
 genetico = model.run_geneticalgo()
@@ -179,14 +171,13 @@ print('4° Generacion - Velocidad dinosaurio rojo: ', genetico[3])
 print('5° Generacion - Velocidad dinosaurio amarillo: ', genetico[4]) 
 
 
-#Poblacion inicial de dinos
+#Poblacion inicial de dinos (la velocidad es dada pro el algoritmo genetico, alto y ancho se genera de manera random)
 dinos = []
 dino = Dino(player["x"], player["y"], genetico[0], random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio.png", (255, 127, 39))
 dino2 = Dino(player["x"]/1.1, player["y"], genetico[1], random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio2.png", (63, 72, 204))
 dino3 = Dino(player["x"]/1.2, player["y"], genetico[2], random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio3.png", (0, 168, 243))
 dino4 = Dino(player["x"]/1.3, player["y"], genetico[3], random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio4.png", (136, 0, 27))
 dino5 = Dino(player["x"]/1.4, player["y"], genetico[4], random.randint(10,70), random.randint(10,70), "Game/recursos/dinosaurio5.png", (255, 202, 24))
-nuvosDinos = []
 
 dinos.append(dino)
 dinos.append(dino2)
@@ -194,14 +185,9 @@ dinos.append(dino3)
 dinos.append(dino4)
 dinos.append(dino5)
 
-#1 -> 255, 127, 39
-#2 -> 63, 72, 204
-#3 -> 0, 168, 243
-#4 -> 136, 0, 27
-#5 -> 255, 202, 24
-# Comenzamos a definir las funciones que formarán parte de nuestro juego
 
-def drawPlayer(dinos):
+# Comenzamos a definir las funciones que formarán parte de nuestro juego
+def drawDinos(dinos):
 
   #Mostrar puntaje y dibujar los dinosaurios
   cont = 0
@@ -217,7 +203,7 @@ def drawPlayer(dinos):
   pygame.display.update()
  
 
-def movePlayer(dinos):
+def moveDinos(dinos):
 
   #Logica para que cada dinosaurio se mueva dependiendo sus valores iniciales
   for dino in dinos:
@@ -229,10 +215,10 @@ def movePlayer(dinos):
 
     if surface.get_at((int(dino.x), int(dino.y + dino.height))) == (0,0,0,255):
       leftOfPlayerOnPlatform = False
-      player["direction"] = "left"
-      
+      player["direction"] = "left"      
 
-    if surface.get_at((int(dino.x + dino.width), int(dino.y + dino.height))) == (0,0,0,255):
+    #Casos en el que esta linea da un "Index out of range" en otro caso el algoritmo corre sin problemas
+    if surface.get_at((int(dino.x + dino.width), int(dino.y + dino.height))) == (0,0,0,255): 
       rightOfPlayerOnPlatform = False
       player["direction"] = "right"
 
@@ -256,8 +242,6 @@ def movePlayer(dinos):
         elif (dino.y + dino.height) - yOffset > 0:
           yOffset += 1
         else :
-
-          #gameOver()
           dino.dead = True
           break
 
@@ -273,6 +257,8 @@ def movePlayer(dinos):
       elif dino.x + dino.width < windowWidth and (dino.x + dino.width) + dino.speed > windowWidth:
         dino.x = windowWidth - dino.width
 
+
+#Crear las plataformas
 def createPlatform():
 
   global lastPlatform, platformDelay
@@ -287,8 +273,9 @@ def createPlatform():
   if platformDelay > 580:
     platformDelay -= 50
 
+
+#Movimiento de las plataformas
 def movePlatforms():
-  # print("Platforms")
 
   for idx, platform in enumerate(gamePlatforms):
 
@@ -297,6 +284,8 @@ def movePlatforms():
     if platform["pos"][1] < -10:
       gamePlatforms.pop(idx)
 
+
+#Dibujar las plataformas
 def drawPlatforms():
 
   for platform in gamePlatforms:
@@ -307,8 +296,7 @@ def drawPlatforms():
 
 def gameOver():
   global gameStarted, gameEnded
-
-  platformSpeed = 0
+ 
   gameStarted = False
   gameEnded = True
 
@@ -338,22 +326,14 @@ while True:
   for i in range(len(gamePlatforms)):
     for dino in dinos:
       if gamePlatforms[i]['pos'][1] - dino.y == dino.height + 1: 
-        #print("En la plataforma: ", i + 1)
-        #print("Escape: ",gamePlatforms[i]['gap'])
-        #print("X: ", int(dino.x))
         dino.leftDown = False
 
         if int(dino.x) > gamePlatforms[i]['gap']:
-          #print("izquierda")
           dino.leftDown = True
 
         dino.rightDown = False
         if int(dino.x) < gamePlatforms[i]['gap']:
           dino.rightDown = True
-          #print("derecha")
-
-  #if len(gamePlatforms) > 0:
-    #print(gamePlatforms[-1])
 
   for event in GAME_EVENTS.get():
 
@@ -368,20 +348,20 @@ while True:
       quitGame()
 
   if gameStarted is True:
-    # Play game
+    #Empezar el juego
     timer = GAME_TIME.get_ticks() - gameBeganAt
 
     movePlatforms()
     drawPlatforms()
-    movePlayer(dinos)
-    drawPlayer(dinos)
+    moveDinos(dinos)
+    drawDinos(dinos)
 
   elif gameEnded is True:
-    # Draw game over screen
+    #Patanalla de juego finalizado
     surface.blit(game_over_image, (0, 150))
 
   else :
-    # Welcome Screen
+    #Pantalla de bienvenida
     surface.blit(title_image, (0, 150))
 
   if GAME_TIME.get_ticks() - lastPlatform > platformDelay:

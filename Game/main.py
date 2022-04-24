@@ -158,7 +158,7 @@ fuente = pygame.font.Font(None, 30)
 #Aplicacion del algoritmo genetico
 #El valor óptimo de la velocidad que se quiere llegar
 target = [9,0,0]
-model = DNA(target = target,mutation_rate = 0.2,n_individuals = 25,n_selection = 10,n_generations = 10,verbose=True)
+model = DNA(target = target,mutation_rate = 0.2,n_individuals = 25,n_selection = 10,n_generations = 5,verbose=True)
 genetico = model.run_geneticalgo()
 
 print(" ")
